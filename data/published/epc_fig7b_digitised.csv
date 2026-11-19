@@ -1,0 +1,13 @@
+family,inner_layer_mil,board_thickness_mil,L_sim_nH,note,source
+optimal,4,31,0.342,,"EPC WP010 Fig. 7b = Reusch APEC2013 slide 14 (pixel-digitised, +-0.003 nH/px)"
+optimal,4,62,0.372,,"EPC WP010 Fig. 7b = Reusch APEC2013 slide 14 (pixel-digitised, +-0.003 nH/px)"
+optimal,12,31,0.558,,"EPC WP010 Fig. 7b = Reusch APEC2013 slide 14 (pixel-digitised, +-0.003 nH/px)"
+optimal,12,62,0.588,,"EPC WP010 Fig. 7b = Reusch APEC2013 slide 14 (pixel-digitised, +-0.003 nH/px)"
+optimal,26,62,0.907,"dotted curve, nearly flat; value at 57.5 mil","EPC WP010 Fig. 7b = Reusch APEC2013 slide 14 (pixel-digitised, +-0.003 nH/px)"
+lateral,4,31,1.009,,"EPC WP010 Fig. 7b = Reusch APEC2013 slide 14 (pixel-digitised, +-0.003 nH/px)"
+lateral,4,62,1.034,,"EPC WP010 Fig. 7b = Reusch APEC2013 slide 14 (pixel-digitised, +-0.003 nH/px)"
+lateral,12,31,1.238,,"EPC WP010 Fig. 7b = Reusch APEC2013 slide 14 (pixel-digitised, +-0.003 nH/px)"
+lateral,12,62,1.307,,"EPC WP010 Fig. 7b = Reusch APEC2013 slide 14 (pixel-digitised, +-0.003 nH/px)"
+lateral,26,62,1.634,"dotted curve, nearly flat; value at 57.5 mil","EPC WP010 Fig. 7b = Reusch APEC2013 slide 14 (pixel-digitised, +-0.003 nH/px)"
+vertical,4,31,0.972,"two near-coincident lines, spread 0.048 nH","EPC WP010 Fig. 7b = Reusch APEC2013 slide 14 (pixel-digitised, +-0.003 nH/px)"
+vertical,4,62,1.829,"two near-coincident lines, spread 0.048 nH","EPC WP010 Fig. 7b = Reusch APEC2013 slide 14 (pixel-digitised, +-0.003 nH/px)"

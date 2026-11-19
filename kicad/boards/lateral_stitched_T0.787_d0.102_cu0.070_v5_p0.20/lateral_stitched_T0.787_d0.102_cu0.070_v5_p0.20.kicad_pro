@@ -1,0 +1,32 @@
+{
+  "board": {
+    "design_settings": {
+      "rules": {
+        "min_clearance": 0.1,
+        "min_track_width": 0.1,
+        "min_via_diameter": 0.5,
+        "min_through_hole_diameter": 0.3,
+        "min_copper_edge_clearance": 0.3,
+        "solder_mask_to_copper_clearance": 0.0
+      },
+      "rule_severities": {
+        "solder_mask_bridge": "ignore"
+      }
+    }
+  },
+  "net_settings": {
+    "classes": [
+      {
+        "name": "Default",
+        "clearance": 0.1,
+        "track_width": 0.15,
+        "via_diameter": 0.6,
+        "via_drill": 0.3
+      }
+    ]
+  },
+  "meta": {
+    "filename": "lateral_stitched_T0.787_d0.102_cu0.070_v5_p0.20.kicad_pro",
+    "version": 1
+  }
+}

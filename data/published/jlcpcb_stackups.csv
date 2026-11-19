@@ -1,0 +1,7 @@
+name,L1L2_prepreg,d1_mm,eps_prepreg,core_mm,eps_core,cu_outer_mm,cu_inner_mm,total_derived_mm,source,retrieved
+JLC04161H-7628,7628 x1,0.2104,4.4,1.065,4.6,0.035,0.0152,1.5862,https://jlcpcb.com/impedance,2026-11-19
+JLC04161H-2116,2116 x1,0.1164,4.16,1.265,4.6,0.035,0.0152,1.5982,https://jlcpcb.com/impedance,2026-11-19
+JLC04161H-3313,3313 x1,0.0994,4.1,1.265,4.6,0.035,0.0152,1.5642,https://jlcpcb.com/impedance,2026-11-19
+JLC04161H-1080,1080 x1,0.0764,3.91,1.265,4.6,0.035,0.0152,1.5182,https://jlcpcb.com/impedance,2026-11-19
+# tolerance (https://jlcpcb.com/capabilities/pcb-capabilities): board thickness >=1.0 mm: +-10 %; no per-ply tolerance stated -> +-10 % per ply is an ASSUMPTION
+# totals derived by summing listed plies (JLC does not state them); core label includes inner copper

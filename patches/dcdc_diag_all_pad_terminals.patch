@@ -1,0 +1,42 @@
+--- a/lib/kicad_geom.py
++++ b/lib/kicad_geom.py
+@@ -1442,17 +1442,19 @@
+     avoids forcing the whole sheet current through a single detached pad-centre
+     stitch while still keeping the terminal region limited to real contact copper.
+     """
++    # DIAGNOSTIC PATCH (gan_loop study): use EVERY pad of the net, not only the
++    # first, and tie their terminals with .equiv (ideal on-die drain/source busbar),
++    # as for an LGA GaN die with interdigitated D/S finger pads.
+     cu = _cu_stack(board)
+-    top_node = None
++    tops, first_xy = [], None
+     for pad in fp.Pads():
+         if pad.GetNetname() != want_net:
+             continue
+         p = pad.GetPosition()
+         x, y = mm(p.x), mm(p.y)
+-        touched = [l for l in cu if pad.IsOnLayer(l)]
+-        if not touched:
+-            touched = [cu[0]]
+-        prev = None
++        first_xy = first_xy or (x, y)
++        touched = [l for l in cu if pad.IsOnLayer(l)] or [cu[0]]
++        prev = top_node = None
+         for lid in touched:
+             n = _pad_land_terminal(model, want_net, lid, x, y, zmap[lid], pad, fp=fp)
+             if n is None:
+@@ -1462,8 +1464,12 @@
+             prev = n
+             if lid == cu[0] or top_node is None:
+                 top_node = n
+-        return top_node, (x, y)
+-    return None, None
++        tops.append(top_node)
++    if not tops:
++        return None, None
++    for t in tops[1:]:
++        model.equiv(tops[0], t)
++    return tops[0], first_xy
+ 
+ 
+ def _probe_pad_node_stack(model, zmap, cu, fp, pad, probe_name, endpoint,

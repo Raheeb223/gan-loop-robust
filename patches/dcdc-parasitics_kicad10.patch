@@ -1,0 +1,26 @@
+diff --git a/copper_dump.py b/copper_dump.py
+index 01e146c..0cf4d62 100644
+--- a/copper_dump.py
++++ b/copper_dump.py
+@@ -65,7 +65,7 @@ def dump(pcb_path):
+     for t in b.GetTracks():
+         if t.GetClass() == "PCB_VIA":
+             c = t.GetPosition()
+-            out["vias"].append([mm(c.x), mm(c.y), mm(t.GetWidth()) / 2])
++            out["vias"].append([mm(c.x), mm(c.y), mm(t.GetWidth(pcbnew.F_Cu)) / 2])
+         else:
+             lyr = t.GetLayer()
+             key = "F" if lyr == FCU else ("B" if lyr == BCU else None)
+diff --git a/lib/kicad_geom.py b/lib/kicad_geom.py
+index b2af786..0ba938f 100644
+--- a/lib/kicad_geom.py
++++ b/lib/kicad_geom.py
+@@ -939,7 +939,7 @@ def add_vias(board, model, zmap, nets, merge_vias=False, merge_radius=1.0,
+         if net not in nets:
+             continue
+         p = t.GetPosition()
+-        vias.append(dict(net=net, x=mm(p.x), y=mm(p.y), d=mm(t.GetWidth()),
++        vias.append(dict(net=net, x=mm(p.x), y=mm(p.y), d=mm(t.GetWidth(pcbnew.F_Cu) if t.GetClass() == "PCB_VIA" else t.GetWidth()),
+                          top=t.TopLayer(), bot=t.BottomLayer()))
+ 
+     if not merge_vias:

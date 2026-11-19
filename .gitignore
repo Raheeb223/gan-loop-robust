@@ -1,0 +1,25 @@
+# Python environment and third-party tools (recreated by setup.ps1)
+env/
+tools/
+__pycache__/
+*.pyc
+
+# Manuscript (not part of the reproducibility package)
+paper/
+
+# Copyrighted source documents and renders of them (obtain from the publishers; see data/published/SOURCES.md)
+data/published/sources/
+data/published/digitise/*.png
+
+# Bulky raw solver output (recreated by run_all.ps1); tables and figures are kept
+results/raw/
+
+# KiCad backups / locks
+*-backups/
+*.lck
+fp-info-cache
+
+# Manuscript build scripts (local only)
+scripts/make_latex.py
+scripts/make_overleaf_zip.py
+scripts/make_ojpel_zip.py

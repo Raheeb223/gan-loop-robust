@@ -1,0 +1,17 @@
+tag,drc_violations,unconnected,fab_files
+lateral_stitched_T0.787_d0.102_cu0.070_v5_p0.20,0,0,28
+lateral_stitched_T0.787_d0.305_cu0.070_v5_p0.20,0,0,28
+lateral_stitched_T1.575_d0.102_cu0.070_v5_p0.20,0,0,28
+lateral_stitched_T1.575_d0.660_cu0.070_v5_p0.20,0,0,28
+lateral_T0.787_d0.102_cu0.070_v5_p0.20,0,0,28
+lateral_T0.787_d0.305_cu0.070_v5_p0.20,0,0,28
+lateral_T1.575_d0.102_cu0.070_v5_p0.20,0,0,28
+lateral_T1.575_d0.660_cu0.070_v5_p0.20,0,0,28
+optimal_T0.787_d0.102_cu0.070_v5_p0.20,0,0,28
+optimal_T0.787_d0.305_cu0.070_v5_p0.20,0,0,28
+optimal_T1.575_d0.102_cu0.070_v5_p0.20,0,0,28
+optimal_T1.575_d0.660_cu0.070_v5_p0.20,0,0,28
+vertical_T0.787_d0.102_cu0.070_v5_p0.20,0,0,28
+vertical_T0.787_d0.305_cu0.070_v5_p0.20,0,0,28
+vertical_T1.575_d0.102_cu0.070_v5_p0.20,0,0,28
+vertical_T1.575_d0.660_cu0.070_v5_p0.20,0,0,28

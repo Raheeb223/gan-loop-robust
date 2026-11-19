@@ -1,0 +1,35 @@
+id,source,doc_location,quantity,layout_type,w_mm,l_mm,e_mm,board_thickness_mil,inner_layer_mil,value,unit,method,conditions,confidence,notes
+L18_U,Letellier2018 TPEL DOI 10.1109/TPEL.2018.2826920,Sec II.A Fig 4,L_loop,U-shape,,,,,,9.4,nH,commercial FEA (MagNet),1 MHz 10 A,exact text,loop 19x23 mm; trace widths not given -> not reproducible
+L18_TB,Letellier2018,Sec II.B Fig 5,L_loop,top-bottom,7.5,14.5,1.6,,,3.56,nH,commercial FEA (MagNet),1 MHz,exact text,loop 7.5x14.5 mm; slots not vias
+L18_Fig6,Letellier2018,Sec II.C Fig 6,L_loop,inner-layer,7.5,19.0,0.53,63,,1.35,nH,commercial FEA (MagNet),1 MHz,exact text,INCONSISTENT: e=0.53 (text) vs 0.59 (caption); exact 2D without end effects already gives 1.585 nH
+L18_T1_EPC2014,Letellier2018,Table 1,L_loop,inner-layer,1.7,9.5,1.0,,,4.31,nH,commercial FEA (MagNet),not stated (1 MHz elsewhere),exact table,Eq13=4.67 Eq14=4.60 Eq1=7.02
+L18_T1_GS61008,Letellier2018,Table 1,L_loop,inner-layer,7.0,15.5,1.0,,,2.28,nH,commercial FEA (MagNet),not stated,exact table,Eq13=2.52 Eq14=2.50 Eq1=2.78
+L18_T1_gate,Letellier2018,Table 1,L_loop,gate loop,0.254,7.2,1.0,,,8.81,nH,commercial FEA (MagNet),not stated,exact table,Eq13=7.82 Eq14=8.11 Eq1=35.6
+L18_F14_TB,Letellier2018,Fig 14 table,L_loop,top-bottom,1.7,9.5,1.6,,,5.72,nH,commercial FEA (MagNet),not stated,exact table,Eq13=6.20 Eq14=6.07 Eq1=11.2
+L18_meas_stray,Letellier2018,Sec V Eq 15,L_stray,inner-layer (GS61008P),7.0,,0.175,39,,1.45,nH,MEASURED ringing + Coss(50V)=280 pF,50 V,exact text,ring frequency itself not reported
+L18_meas_pcb,Letellier2018,Sec V,L_pcb,inner-layer (GS61008P),7.0,,0.175,39,,0.38,nH,DERIVED: 1.45 - 2x0.1 (assumed pkg) - 0.87 (assumed caps),50 V,exact text,residual of assumed quantities; Eq14 gives 0.53
+WP010_F7b_opt_4_31,EPC WP010 / Reusch APEC2013 slide 14,Fig 7b,L_loop,optimal,,,,31,4.0,0.35,nH,EPC simulation (tool not stated),HF loop,SUPERSEDED visual read; use epc_fig7b_digitised.csv,
+WP010_F7b_opt_4_62,EPC WP010,Fig 7b,L_loop,optimal,,,,62,4.0,0.37,nH,EPC simulation,HF loop,SUPERSEDED visual read; use epc_fig7b_digitised.csv,
+WP010_F7b_opt_12_31,EPC WP010,Fig 7b,L_loop,optimal,,,,31,12.0,0.57,nH,EPC simulation,HF loop,SUPERSEDED visual read; use epc_fig7b_digitised.csv,
+WP010_F7b_opt_12_62,EPC WP010,Fig 7b,L_loop,optimal,,,,62,12.0,0.60,nH,EPC simulation,HF loop,SUPERSEDED visual read; use epc_fig7b_digitised.csv,
+WP010_F7b_opt_26_62,EPC WP010,Fig 7b,L_loop,optimal,,,,62,26.0,0.90,nH,EPC simulation,HF loop,SUPERSEDED visual read; use epc_fig7b_digitised.csv,dotted curve spans ~53-62 mil
+WP010_F7b_lat_4_31,EPC WP010,Fig 7b,L_loop,lateral,,,,31,4.0,1.00,nH,EPC simulation,HF loop,SUPERSEDED visual read; use epc_fig7b_digitised.csv,
+WP010_F7b_lat_4_62,EPC WP010,Fig 7b,L_loop,lateral,,,,62,4.0,1.04,nH,EPC simulation,HF loop,SUPERSEDED visual read; use epc_fig7b_digitised.csv,
+WP010_F7b_lat_12_31,EPC WP010,Fig 7b,L_loop,lateral,,,,31,12.0,1.24,nH,EPC simulation,HF loop,SUPERSEDED visual read; use epc_fig7b_digitised.csv,
+WP010_F7b_lat_12_62,EPC WP010,Fig 7b,L_loop,lateral,,,,62,12.0,1.32,nH,EPC simulation,HF loop,SUPERSEDED visual read; use epc_fig7b_digitised.csv,
+WP010_F7b_lat_26_62,EPC WP010,Fig 7b,L_loop,lateral,,,,62,26.0,1.63,nH,EPC simulation,HF loop,SUPERSEDED visual read; use epc_fig7b_digitised.csv,dotted curve spans ~53-62 mil
+WP010_F7b_ver_4_31,EPC WP010,Fig 7b,L_loop,vertical,,,,31,4.0,0.97,nH,EPC simulation,HF loop,SUPERSEDED visual read; use epc_fig7b_digitised.csv,
+WP010_F7b_ver_4_62,EPC WP010,Fig 7b,L_loop,vertical,,,,62,4.0,1.80,nH,EPC simulation,HF loop,SUPERSEDED visual read; use epc_fig7b_digitised.csv,
+WP010_F7b_ver_12_31,EPC WP010,Fig 7b,L_loop,vertical,,,,31,12.0,1.00,nH,EPC simulation,HF loop,SUPERSEDED visual read; use epc_fig7b_digitised.csv,
+WP010_F7b_ver_12_62,EPC WP010,Fig 7b,L_loop,vertical,,,,62,12.0,1.82,nH,EPC simulation,HF loop,SUPERSEDED visual read; use epc_fig7b_digitised.csv,
+WP010_text_vert_80pct,EPC WP010,p4 text,ratio,vertical,,,,31->62,,1.80,ratio,EPC simulation,,exact text,"inductance increases ""by as much as 80%"" when board thickness doubled 31->62 mil"
+WP010_text_65pct,EPC WP010,p4 text,reduction,optimal vs best conventional,,,,,,0.65,fraction,EPC simulation,,exact text,"""on the order of 65%"""
+TPEL14_abs_40pct,Reusch&Strydom TPEL 29(4) 2014 abstract,abstract,reduction,optimal vs best conventional,,,,,,0.40,fraction,unknown,,exact text (via abstract listing),conflicts with WP010 65%; open, see results/discrepancies.md item 7
+WP010_os_04,EPC WP010,Fig 3c,overshoot,eGaN design,,,,,,30,% of VIN,MEASURED waveform,"VIN=12V VOUT=1.2V fsw=1MHz Lbuck=150nH EPC2015/EPC2015, Lloop~0.4 nH",exact text,L value is approximate (~)
+WP010_os_16,EPC WP010,Fig 3b,overshoot,eGaN design,,,,,,100,% of VIN,MEASURED waveform,"same, Lloop~1.6 nH",exact text,L value is approximate (~)
+APEC13_os_10,Reusch APEC2013 slides,slide 9,overshoot,eGaN design,,,,,,70,% of VIN,MEASURED waveform,"VIN=12V IOUT=20A 1MHz L=150nH, Lloop~1.0 nH",exact text,L value is approximate (~)
+WP010_eff_drop,EPC WP010,Fig 3a text,efficiency drop,,,,,,,4,%-points,MEASURED efficiency,"0.4 -> 2.9 nH, 12V->1.2V 1MHz",exact text,"""by over 4%"""
+WP010_si_meas,EPC WP010,p5 text,L_loop,vertical Si MOSFET vs eGaN,,,,,,2.0 vs 1.0,nH,MEASURED (method not stated),,exact text,"""measured to be around 2 nH, compared to 1 nH"""
+EPC2015C_Coss20,EPC2015C datasheet 2021,Dyn. char.,Coss(20V),,,,,,,710 typ / 1070 max,pF,datasheet,VDS=20V VGS=0,exact,50% typ-to-max spread -> ringing-derived L uncertainty
+EPC2015C_CossTR,EPC2015C datasheet,Dyn. char.,Coss(tr),,,,,,,940,pF,datasheet,0-20 V,exact,
+EPC2015C_CossER,EPC2015C datasheet,Dyn. char.,Coss(er),,,,,,,870,pF,datasheet,0-20 V,exact,

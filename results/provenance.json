@@ -1,0 +1,19 @@
+{
+  "timestamp_utc": "2026-11-18T20:15:50.829571+00:00",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "python": "3.14.4 (tags/v3.14.4:23116f9, Apr  7 2026, 14:10:54) [MSC v.1944 64 bit (AMD64)]",
+  "fasthenry": {
+    "path": "E:\\electronics2research\\gan_loop\\tools\\bin\\fasthenry.exe",
+    "bar_L_nH": 6.986376790422002,
+    "ref_nH": 6.968926193673317
+  },
+  "ngspice": "ngspice-47 : Circuit level simulation program",
+  "openEMS_python": "0.37.0",
+  "kicad_cli": "10.0.8",
+  "kicad_python_pcbnew": "10.0.8",
+  "numpy": "2.5.5",
+  "scipy": "1.18.1",
+  "pandas": "3.1.1",
+  "matplotlib": "3.11.2",
+  "git_commit": "no commits yet"
+}

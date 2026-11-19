@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software or data, please cite it as below."
+title: "gan-loop-robust: open-source, verified extraction of GaN half-bridge PCB power-loop inductance"
+authors:
+  - family-names: Sadman
+    given-names: Raheeb
+    affiliation: "BRAC University"
+license: MIT
+repository-code: "https://github.com/Raheeb223/gan-loop-robust"
+keywords:
+  - gallium nitride
+  - PCB layout
+  - parasitic extraction
+  - FastHenry
+  - openEMS
+  - KiCad
+  - ngspice

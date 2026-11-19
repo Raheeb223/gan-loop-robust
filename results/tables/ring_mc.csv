@@ -1,0 +1,3 @@
+quantity,p2_5,p50,p97_5,frac_negative,f_ring_MHz
+L_est/L_true from Coss typ when part is typ..max,1.012676906930484,1.2531485327714464,1.4941766594220707,,
+"Letellier2018 L_pcb (nH), +-30% on Coss, L_pkg, L_cap",-0.09965588127374178,0.39685347917000513,1.058179634652571,0.07769,249.7796857340092
