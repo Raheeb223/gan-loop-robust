@@ -22,7 +22,7 @@ Step 'tier-2 WP010 sweep (coarse + mesh ladder)' { & $py scripts\sweep_epc.py --
 Step 'tier-2 HF convergence ladder' { & $py scripts\hf_ladder.py }
 Step 'KiCad boards, DRC, Gerbers'  { & $py scripts\kicad_prims.py kicad\prims; & $py scripts\kicad_all.py }
 Step 'baseline: dcdc-parasitics'   { & $py scripts\bench_dcdc.py }
-Step 'ringing-method uncertainty'  { & $py scripts\ring_uncertainty.py }
+Step 'ringing-method uncertainty'  { & $py scripts\ring_uncertainty.py; & $py scripts\ring_sensitivity.py }
 Step 'circuit validation'          { & $py scripts\circuit_validation.py }
 Step 'fab design map + Monte Carlo' { & $py scripts\design_map.py; & $py scripts\design_map_overshoot.py }
 Step 'figures'                     { & $py scripts\figures.py }
