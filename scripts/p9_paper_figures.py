@@ -1,5 +1,5 @@
 """Manuscript versions of the Phase 3-5 figures, redrawn from the saved results in a uniform
-black-and-white IEEE style (Times, embedded TrueType fonts, hatching instead of colour).
+IEEE style (Times, embedded TrueType fonts, colour-blind-safe colours that also differ in grey level).
 
 Inputs : results/phase3/spice_coupled.csv, results/phase4/{campaign,sobol}.csv + gp_model.pkl,
          results/phase5/{pareto,picks,references,verify}.csv
@@ -26,8 +26,11 @@ STYLE = {
     "axes.spines.top": True, "axes.spines.right": True, "legend.frameon": False, "hatch.linewidth": 0.5,
     "pdf.fonttype": 42, "ps.fonttype": 42, "savefig.dpi": 300, "savefig.bbox": "tight", "savefig.pad_inches": 0.02,
 }
-KEL = dict(fc="white", ec="black", lw=0.6)
-COM = dict(fc="0.75", ec="black", lw=0.6, hatch="////")
+BLUE, RED, ORANGE, GREEN = "#1f77b4", "#d62728", "#ff7f0e", "#2ca02c"
+KEL = dict(fc=BLUE, ec="black", lw=0.4)      # Kelvin return
+COM = dict(fc=RED, ec="black", lw=0.4)       # common return
+P3313 = dict(fc=BLUE, ec="black", lw=0.4)
+P7628 = dict(fc=ORANGE, ec="black", lw=0.4)
 
 
 def false_turn_on():
@@ -62,8 +65,8 @@ def parity():
     te = C[C.err.isna() & (C.set == "test")]
     lo, mid, hi = sur.interval(te[VARS].values, 0.05)
     fig, ax = plt.subplots(figsize=(W, 2.15))
-    ax.errorbar(te.L_nH, mid, yerr=[mid - lo, hi - mid], fmt="o", ms=2.8, mfc="white", mec="black", mew=0.6,
-                ecolor="0.45", elinewidth=0.6, capsize=0, label="Test layout, 95 % conformal interval")
+    ax.errorbar(te.L_nH, mid, yerr=[mid - lo, hi - mid], fmt="o", ms=2.8, mfc=BLUE, mec=BLUE, mew=0.6,
+                ecolor="#7fb3d9", elinewidth=0.6, capsize=0, label="Test layout, 95 % conformal interval")
     a = [te.L_nH.min() * 0.95, te.L_nH.max() * 1.05]
     ax.plot(a, a, "k-", lw=0.6, label="Ideal")
     ax.set_xlim(a); ax.set_ylim(a)
@@ -79,8 +82,8 @@ def sobol():
     lab = {"t_d1": "Prepreg\n$d_1$", "t_cu": "Outer\nCu", "t_cuin": "Inner\nCu", "hole": "Via\nhole",
            "bump": "Bump\nheight", "dx_die": "Die\noffset"}
     fig, ax = plt.subplots(figsize=(W, 1.85))
-    for k, (st, sty, name) in enumerate((("3313 (nominal)", KEL, "3313 prepreg (nominal)"),
-                                          ("7628 (default)", COM, "7628 prepreg (default)"))):
+    for k, (st, sty, name) in enumerate((("3313 (nominal)", P3313, "3313 prepreg (nominal)"),
+                                          ("7628 (default)", P7628, "7628 prepreg (default)"))):
         g = S[S.stackup == st]
         x = np.arange(len(g)) + (k - 0.5) * 0.38
         ax.bar(x, g.ST, 0.36, yerr=g.ST_conf, **sty, label=name,
@@ -101,14 +104,14 @@ def pareto():
     V = pd.read_csv(ROOT / "results" / "phase5" / "verify.csv").set_index("pick").loc[picks.pick]
     refs = pd.read_csv(ROOT / "results" / "phase5" / "references.csv")
     fig, ax = plt.subplots(figsize=(W, 2.2))
-    ax.plot(P.copper_area_mm2, P.L95_robust_nH, "o", ms=2.2, color="0.55", mec="none", label="Pareto front (1080 prepreg)")
+    ax.plot(P.copper_area_mm2, P.L95_robust_nH, "o", ms=2.2, color=BLUE, mec="none", label="Pareto front (1080 prepreg)")
     ax.plot(picks.copper_area_mm2, picks.L95_robust_nH, "*", ms=8, color="black", label="Selected designs")
-    ax.plot(picks.copper_area_mm2, V.fh_p95_nH.values, "x", ms=6, mew=1.0, color="black",
+    ax.plot(picks.copper_area_mm2, V.fh_p95_nH.values, "x", ms=6, mew=1.0, color=RED,
             label="FastHenry 95th percentile")
-    mk = {"nominal_3313": ("s", "Nominal, 3313 prepreg"), "nominal_7628": ("D", "Nominal, 7628 prepreg")}
+    mk = {"nominal_3313": ("s", "Nominal, 3313 prepreg", ORANGE), "nominal_7628": ("D", "Nominal, 7628 prepreg", GREEN)}
     for _, r in refs.iterrows():
-        m, lab = mk.get(r["name"], ("^", r["name"]))
-        ax.plot(r.copper_area_mm2, r.L95_robust_nH, m, ms=5, mfc="white", mec="black", mew=0.7, label=lab)
+        m, lab, c = mk.get(r["name"], ("^", r["name"], "black"))
+        ax.plot(r.copper_area_mm2, r.L95_robust_nH, m, ms=5, mfc="white", mec=c, mew=1.0, label=lab)
     ax.set_xlabel("Copper area next to the devices (mm$^2$)")
     ax.set_ylabel("Robust $L_{95}$ at 100 MHz (nH)")
     ax.legend(loc="upper right", fontsize=6.5, handletextpad=0.4, labelspacing=0.3)
@@ -126,8 +129,8 @@ def uq_combined():
     lo, mid, hi = sur.interval(te[VARS].values, 0.05)
     S = pd.read_csv(ROOT / "results" / "phase4" / "sobol.csv")
     fig, (a1, a2) = plt.subplots(1, 2, figsize=(W, 1.9), gridspec_kw=dict(width_ratios=[1, 1.15]))
-    a1.errorbar(te.L_nH, mid, yerr=[mid - lo, hi - mid], fmt="o", ms=2.2, mfc="white", mec="black", mew=0.5,
-                ecolor="0.45", elinewidth=0.5, capsize=0)
+    a1.errorbar(te.L_nH, mid, yerr=[mid - lo, hi - mid], fmt="o", ms=2.2, mfc=BLUE, mec=BLUE, mew=0.5,
+                ecolor="#7fb3d9", elinewidth=0.5, capsize=0)
     lim = [0.27, 0.62]
     a1.plot(lim, lim, "k-", lw=0.5)
     a1.set_xlim(lim); a1.set_ylim(lim)
@@ -136,7 +139,7 @@ def uq_combined():
     a1.set_title("(a)", fontsize=8, pad=3)
     lab = {"t_d1": "$d_1$", "t_cu": r"Cu$_\mathrm{o}$", "t_cuin": r"Cu$_\mathrm{i}$", "hole": "Hole",
            "bump": "Bump", "dx_die": "Die"}
-    for k, (st, sty, name) in enumerate((("3313 (nominal)", KEL, "3313"), ("7628 (default)", COM, "7628"))):
+    for k, (st, sty, name) in enumerate((("3313 (nominal)", P3313, "3313"), ("7628 (default)", P7628, "7628"))):
         g = S[S.stackup == st]
         x = np.arange(len(g)) + (k - 0.5) * 0.4
         a2.bar(x, g.ST, 0.38, yerr=g.ST_conf, **sty, label=name,
