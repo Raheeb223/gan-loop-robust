@@ -6,40 +6,64 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-import figures as F  # noqa: E402  (shared style, colours and save())
+import figures as F  # noqa: E402  (shared style and save())
 
 ARROW = "→"
 
 
 def fig_workflow_v2():
-    from matplotlib.patches import FancyBboxPatch
+    """Black-and-white block diagram of the workflow (IEEE two-column width)."""
     plt = F.plt
-    fig, ax = plt.subplots(figsize=(7.16, 2.6))
-    ax.set_xlim(0, 100); ax.set_ylim(0, 35); ax.axis("off")
+    rc = {"font.family": "serif", "font.serif": ["Times New Roman", "Times", "STIXGeneral", "DejaVu Serif"],
+          "mathtext.fontset": "stix", "pdf.fonttype": 42, "ps.fonttype": 42}
+    with plt.rc_context(rc):
+        fig, ax = plt.subplots(figsize=(7.16, 2.55))
+        ax.set_xlim(0, 100); ax.set_ylim(0, 35); ax.axis("off")
+        B = {}
 
-    def box(x, y, w, h, t):
-        ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.3,rounding_size=1.2", fc=F.GRID, ec=F.INK2,
-                                    lw=0.8))
-        ax.text(x + w / 2, y + h / 2, t, ha="center", va="center", fontsize=5.8, color=F.INK)
+        def box(key, x, y, w, h, title, body, lw=0.7):
+            ax.add_patch(plt.Rectangle((x, y), w, h, fc="white", ec="black", lw=lw))
+            B[key] = (x, y, w, h)
+            txt = title if not body else f"{title}\n{body}"
+            t = ax.text(x + w / 2, y + h / 2, txt, ha="center", va="center", fontsize=7, color="black",
+                        linespacing=1.15)
+            if body:  # bold first line only: draw title separately
+                t.remove()
+                n = body.count("\n") + 2
+                lh = 2.05  # line height in data units at 7 pt
+                y0 = y + h / 2 + (n - 1) * lh / 2
+                ax.text(x + w / 2, y0, title, ha="center", va="center", fontsize=7, fontweight="bold", color="black")
+                ax.text(x + w / 2, y0 - lh, body, ha="center", va="top", fontsize=7, color="black",
+                        linespacing=1.15)
 
-    def arr(x0, y0, x1, y1):
-        ax.annotate("", (x1, y1), (x0, y0), arrowprops=dict(arrowstyle="-|>", color=F.INK2, lw=0.8))
+        def R(k, f=0.5):  # point on right edge
+            x, y, w, h = B[k]; return (x + w, y + f * h)
 
-    box(0.5, 10.5, 15, 14, "Parametric layout:\nfamily, stackup,\ndevice footprint,\ngate return,\nfabrication\ntolerances")
-    box(21, 26, 17, 7, "KiCad 10 board\nDRC, Gerbers, drill")
-    box(21, 15, 17, 8, "FastHenry (PEEC)\n3-port Z(f): power,\ngate HS, gate LS")
-    box(21, 4, 17, 8, "openEMS (FDTD)\nindependent check")
-    box(44, 20, 18, 9, "L matrix, passive\nRL ladder,\nK-coupled ngspice")
-    box(44, 4, 18, 12, f"FastHenry campaign:\ndesign + tolerance\nvariables {ARROW} GP\nsurrogate, conformal\nerror bars")
-    box(67.5, 24, 15, 9, "Overshoot,\ndv/dt, false\nturn-on margin")
-    box(67.5, 13, 15, 7, "Sobol indices,\ntolerance spread")
-    box(67.5, 1.5, 15, 9, f"NSGA-II robust\nlayout {ARROW} verify\n{ARROW} KiCad boards")
-    box(87, 7.5, 12.5, 19, "Verified against:\nexact 2-D,\nGrover,\npublished FEA,\nEPC simulation,\nmeasured\nboards")
-    arr(15.8, 21, 21, 29); arr(15.8, 18, 21, 19); arr(15.8, 14, 21, 8)
-    arr(38, 19, 44, 24); arr(38, 17, 44, 12); arr(38, 8, 44, 21)
-    arr(62, 26, 67.5, 28); arr(62, 11, 67.5, 16.5); arr(62, 7, 67.5, 6)
-    arr(82.5, 6, 87, 11); arr(82.5, 28, 87, 23)
-    F.save(fig, "fig_workflow_v2")
+        def L(k, f=0.5):  # point on left edge
+            x, y, w, h = B[k]; return (x, y + f * h)
+
+        def arr(p0, p1, style="-|>"):
+            ax.annotate("", p1, p0, arrowprops=dict(arrowstyle=style, color="black", lw=0.7,
+                                                    shrinkA=0, shrinkB=0, mutation_scale=7))
+
+        box("par", 0, 8.5, 15.8, 18, "Parametric layout", "family, stackup,\ndevice footprint,\ngate return,\nfabrication\ntolerances")
+        box("kic", 19.5, 26.5, 18, 8, "KiCad 10 board", "DRC, Gerbers, drill")
+        box("fh", 19.5, 13.5, 18, 9.5, "FastHenry (PEEC)", "3-port Z(f): power,\ngate HS, gate LS")
+        box("oem", 19.5, 0.5, 18, 8, "openEMS (FDTD)", "independent check")
+        box("lm", 42.5, 21.5, 19, 11, "Circuit model", "L matrix, passive RL\nladder, K-coupled\nngspice")
+        box("cmp", 42.5, 0.5, 19, 14.5, "Solver campaign", f"design + tolerance\nvariables {ARROW} GP\nsurrogate, conformal\nerror bars")
+        box("ovs", 66.5, 24, 16, 10.5, "Switching", "overshoot, dv/dt,\nfalse turn-on margin")
+        box("sob", 66.5, 12.5, 16, 8.5, "Tolerance analysis", "Sobol indices,\nspread")
+        box("opt", 66.5, 0.5, 16, 9.5, "Robust layout", f"NSGA-II {ARROW} verify\n{ARROW} KiCad boards")
+        box("ver", 86.3, 5.5, 13.7, 24, "Verified against", "exact 2-D,\nGrover,\npublished FEA,\nEPC simulation,\nmeasured\nboards")
+
+        arr(R("par", 0.85), L("kic")); arr(R("par", 0.5), L("fh")); arr(R("par", 0.15), L("oem"))
+        x_m = 19.5 + 9
+        arr((x_m, 8.5), (x_m, 13.5), "<|-|>")  # openEMS cross-checks FastHenry
+        arr(R("fh", 0.7), L("lm", 0.4)); arr(R("fh", 0.3), L("cmp", 0.7))
+        arr(R("lm"), L("ovs")); arr(R("cmp", 0.75), L("sob")); arr(R("cmp", 0.3), L("opt"))
+        arr(R("ovs"), L("ver", 0.8)); arr(R("sob"), L("ver", 0.5)); arr(R("opt"), L("ver", 0.2))
+        F.save(fig, "fig_workflow_v2")
 
 
 if __name__ == "__main__":

@@ -13,7 +13,8 @@
 (d) Prepreg tolerance assumption: Sobol indices recomputed on the surrogate with the prepreg
     tolerance narrowed to +-5 % and +-3 %, and with Gaussian inputs (limit = 3 sigma) instead of
     uniform ones.
-Outputs: results/review/{mutual_convergence,kelvin_position,shoot_through,sobol_tolerance}.csv
+(e) Low-side hard turn-off with reverse load current, where M13 is the device's own common-source coupling.
+Outputs: results/review/{mutual_convergence,shoot_through,sobol_tolerance,ls_turnoff}.csv
 """
 from __future__ import annotations
 
@@ -105,6 +106,49 @@ def shoot_through():
     return S
 
 
+def turnoff_job(kw):
+    """(e) Low-side hard turn-off with reverse load current (boost / negative-current operation):
+    the low-side device commutates its own current, so M13 acts as its own common-source inductance."""
+    import spice_sim as ss
+    o = ss.run_bench(ss.Bench(t_stop=60e-9, **kw))
+    t, v, vsw = o["t"], o["vgs_ls_int"], o["vsw"]
+    t1, vin = 5e-9, o["vin"]
+    m = t >= t1
+    tt, vv, sw = t[m], v[m], vsw[m]
+    i_below = int(np.argmax(vv < 0.5))      # gate fully discharged (below 0.5 V)
+    rerise = float(vv[i_below:].max())
+
+    def tcross(level):
+        k = int(np.argmax(sw >= level))
+        return tt[k] if sw[k] >= level else np.nan
+    t10, t90 = tcross(0.1 * vin), tcross(0.9 * vin)
+    return dict(vgs_ls_rerise_V=rerise, vgs_ls_min_V=float(vv.min()), rise_10_90_ns=(t90 - t10) * 1e9,
+                dvdt_V_per_ns=0.8 * vin / ((t90 - t10) * 1e9), delay_to_90_ns=(t90 - t1) * 1e9,
+                vsw_peak_V=float(sw.max()))
+
+
+def ls_turnoff():
+    import p3_spice as P3
+    Lt = pd.read_csv(ROOT / "results" / "phase3" / "coupled_L100.csv")
+    cal = pd.read_csv(ROOT / "results" / "tables" / "circuit_validation.csv").iloc[0]
+    rup, rd = float(cal.r_pullup), float(cal.R_damp)
+    jobs, meta = [], []
+    for _, r in Lt[Lt.case.str.endswith("_sweep")].iterrows():
+        L1 = r.L11_nH * 1e-9 + P3.ESL
+        k12 = r.L12_nH * 1e-9 / np.sqrt(L1 * r.L22_nH * 1e-9)
+        k13 = r.L13_nH * 1e-9 / np.sqrt(L1 * r.L33_nH * 1e-9)
+        k23 = r.L23_nH / np.sqrt(r.L22_nH * r.L33_nH)
+        base = dict(L_loop=L1, L_gate_hs=r.L22_nH * 1e-9, L_gate_ls=r.L33_nH * 1e-9, R_loop=rd, r_pullup=rup)
+        for iload in (-20.0, -40.0):
+            for coup, kk in (("coupled", dict(k_p_hs=k12, k_p_ls=k13, k_hs_ls=k23)), ("uncoupled", {})):
+                jobs.append(dict(base, iload=iload, **kk))
+                meta.append(dict(case=r.case.replace("_sweep", ""), iload_A=iload, coupling=coup,
+                                 M13_nH=r.L13_nH))
+    with ProcessPoolExecutor(max_workers=4) as ex:
+        res = list(ex.map(turnoff_job, jobs))
+    return pd.DataFrame([dict(m, **x) for m, x in zip(meta, res)])
+
+
 # ---------------------------------------------------------------- (d) Sobol vs tolerance assumption
 def sobol_tolerance():
     from SALib.analyze import sobol
@@ -151,6 +195,10 @@ def main():
         S.to_csv(OUT / "shoot_through.csv", index=False)
         print("model threshold at 9 mA:", round(S.attrs["vth_model"], 3), "V", flush=True)
         print(S.round(4).to_string(), flush=True)
+    if "turnoff" in what:
+        S = ls_turnoff()
+        S.to_csv(OUT / "ls_turnoff.csv", index=False)
+        print(S.round(3).to_string(), flush=True)
     jobs = []
     if "mesh" in what:
         for fam, gate in CASES:
