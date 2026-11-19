@@ -27,6 +27,25 @@ inductances into switching waveforms.
 Known differences larger than 10 % between this work and published data, with their
 assessment, are listed in [`results/discrepancies.md`](results/discrepancies.md).
 
+## Extensions (coupled loops, tolerances, robust design, newer devices)
+
+| Topic | Script(s) | Output |
+|---|---|---|
+| Calibration error surface, leave-one-family-out test, dv/dt definitions | `p2_crossval.py` | `results/phase2/` |
+| Ringing-method sensitivity to the assumed input tolerance (±10/20/30 %) | `ring_sensitivity.py` | `results/revision/` |
+| Coupled power + gate-loop extraction (3-port), Grover mutual-inductance check | `p3_extract.py` | `results/phase3/` |
+| Passive RL ladder fit, K-coupled ngspice bench, false turn-on margin | `p3_spice.py` | `results/phase3/` |
+| openEMS cross-check of the coupled extraction (6 FDTD runs) | `p3_openems.py` | `results/phase3/` |
+| FastHenry campaign over design + fabrication-tolerance variables | `p4_campaign.py` | `results/phase4/campaign.csv` |
+| Gaussian-process surrogate, split-conformal intervals, Sobol indices | `p4_uq.py` | `results/phase4/` |
+| NSGA-II robust optimisation, FastHenry verification, KiCad boards | `p5_opt.py` | `results/phase5/`, `kicad/boards_p5/` |
+| EPC2218 and EPC2302 (2026 datasheets): models, extraction, switching | `devices.py`, `p6_devices.py` | `results/phase6/` |
+
+Fabrication tolerances are taken from the JLCPCB capabilities page where stated
+(finished thickness ±10 %, PTH +0.13/−0.08 mm, hole position ±0.075 mm); the remaining
+ones (copper thickness, bump height, die offset) are marked as assumptions in
+`scripts/p4_campaign.py`.
+
 ## Requirements
 
 * Windows 10/11 (the scripts are PowerShell; the Python code itself is portable)

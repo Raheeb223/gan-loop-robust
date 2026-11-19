@@ -106,7 +106,7 @@ def build(p: layouts.Params) -> dict:
     ys = [r["y0"] for r in rects] + [r["y1"] for r in rects]
     outline = dict(x0=min(xs) - 1.5, y0=min(ys) - 1.5, x1=max(xs) + 1.5, y1=max(ys) + 1.5)
     return dict(params=asdict(p), rects=rects, vias=vias, fets=fps, caps=cap, outline=outline,
-                stackup=dict(T=p.T, d1=p.d1, cu=p.cu))
+                stackup=dict(T=p.T, d1=p.d1, cu=p.cu, **({} if p.cu_in is None else dict(cu_in=p.cu_in))))
 
 
 if __name__ == "__main__":

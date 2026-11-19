@@ -26,5 +26,17 @@ Step 'ringing-method uncertainty'  { & $py scripts\ring_uncertainty.py; & $py sc
 Step 'circuit validation'          { & $py scripts\circuit_validation.py }
 Step 'fab design map + Monte Carlo' { & $py scripts\design_map.py; & $py scripts\design_map_overshoot.py }
 Step 'figures'                     { & $py scripts\figures.py }
+# ---- extensions (results/phase2 ... phase6); see each script's docstring for method and runtime
+Step 'P2 calibration cross-validation, dv/dt definitions' { & $py scripts\p2_crossval.py }
+Step 'P3 coupled power/gate extraction (~25 min)' { & $py scripts\p3_extract.py }
+Step 'P3 RL ladder, K-coupled SPICE, false turn-on' { & $py scripts\p3_spice.py }
+if (-not $SkipOpenEMS) {
+  Step 'P3 FastHenry thin-copper twin of the openEMS models' { & $py scripts\p3_fh_twin.py }
+  Step 'P3 openEMS coupled cross-check (4 runs, ~1 h each)' { & $py scripts\p3_openems.py }
+}
+Step 'P6 newer devices (EPC2218, EPC2302)' { & $py scripts\p6_devices.py }
+Step 'P4 FastHenry campaign (~424 runs, ~1.5 h)' { & $py scripts\p4_campaign.py }
+Step 'P4 surrogate, conformal intervals, Sobol' { & $py scripts\p4_uq.py }
+Step 'P5 NSGA-II robust optimisation + KiCad boards' { & $py scripts\p5_opt.py }
 if (Test-Path paper) { Step 'LaTeX source + Overleaf zip' { & $py scripts\make_latex.py; & $py scripts\make_overleaf_zip.py; & $py scripts\make_ojpel_zip.py } }
 Write-Host 'done' -ForegroundColor Green

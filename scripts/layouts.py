@@ -63,6 +63,16 @@ class Params:
     n_bridge: int = 5               # die bridges per device
     pitch: float = 0.2              # plane discretisation (mm)
     margin_plane: float = 1.0       # inner plane overhang beyond loop (mm)
+    # --- tolerance variables (Phase 4); defaults reproduce the original geometry
+    fet_l: float = FET_L            # die / package length along the current (mm) (Phase 6 devices)
+    bump: float = BUMP              # solder bump / seating height (mm)
+    via_w: float = VIA_W            # via barrel, square-bar equivalent (mm)
+    dx_die: float = 0.0             # die placement offset along x (mm)
+    # --- gate loops (Phase 3); 'none' reproduces the original power-loop-only geometry
+    gate: str = "none"              # none | kelvin | common  (common: LS driver return via to L2)
+    l_gate: float = 3.0             # driver-to-gate-pad trace length (mm)
+    w_gate: float = 0.3             # gate / kelvin trace width (mm)
+    s_gate: float = 0.5             # gate-to-return trace centre spacing (mm)
 
     def tag(self) -> str:
         ci = "" if self.cu_in is None else f"i{self.cu_in:.4f}"
@@ -83,33 +93,34 @@ def _ys(W, k, inset=0.25):
 
 
 def _device(g: Geometry, tag, pl_in, pl_out, x0, p: Params, zt):
-    """FET between plane pl_in (left) and pl_out (right), die spanning x0..x0+FET_L."""
+    """FET between plane pl_in (left) and pl_out (right), die spanning x0..x0+p.fet_l."""
+    x0 = x0 + p.dx_die
     for i, y in enumerate(_ys(p.W, p.n_bridge, inset=p.W / (2 * p.n_bridge))):
         a = g.contact(pl_in, f"{tag}a{i}", x0 + 0.3, y)
-        b = g.contact(pl_out, f"{tag}b{i}", x0 + FET_L - 0.3, y)
-        zd = zt + p.cu / 2 + BUMP
+        b = g.contact(pl_out, f"{tag}b{i}", x0 + p.fet_l - 0.3, y)
+        zd = zt + p.cu / 2 + p.bump
         ua = g.node(f"{tag}ua{i}", x0 + 0.3, y, zd)
-        ub = g.node(f"{tag}ub{i}", x0 + FET_L - 0.3, y, zd)
+        ub = g.node(f"{tag}ub{i}", x0 + p.fet_l - 0.3, y, zd)
         wb = p.W / p.n_bridge * 0.8
         g.bar(a, ua, 0.18 * 1.5, 0.18 * 1.5, wdir=(0, 1, 0))    # solder bumps (bar ~ 0.27 mm)
         g.bar(ub, b, 0.18 * 1.5, 0.18 * 1.5, wdir=(0, 1, 0))
         g.bar(ua, ub, wb, DIE_H)                                # die bridge
 
 
-def _via_row(g: Geometry, tag, pl_top, pl_bot, x, ycentre, width, n):
+def _via_row(g: Geometry, tag, pl_top, pl_bot, x, ycentre, width, n, via_w=VIA_W):
     for i, y in enumerate(_ys(width, n, inset=0.3) + ycentre):
         a = g.contact(pl_top, f"{tag}t{i}", x, y)
         b = g.contact(pl_bot, f"{tag}b{i}", x, y)
-        g.bar(a, b, VIA_W, VIA_W, wdir=(0, 1, 0))
+        g.bar(a, b, via_w, via_w, wdir=(0, 1, 0))
 
 
 def _chain(g: Geometry, p: Params, zt, x_start):
     """Top-layer chain from x_start: VIN | T | SW | SR | GND. Returns planes and x marks."""
     W = p.W
     xT = x_start + p.l_vin
-    xS = xT + FET_L + p.l_sw
-    x_end = xS + FET_L + p.l_gnd
-    mT, mS = xT + FET_L / 2, xS + FET_L / 2
+    xS = xT + p.fet_l + p.l_sw
+    x_end = xS + p.fet_l + p.l_gnd
+    mT, mS = xT + p.fet_l / 2, xS + p.fet_l / 2
     vin = g.plane("vin", x_start, -W / 2, mT - 0.1, W / 2, zt, p.cu, p.pitch)
     sw = g.plane("sw", mT + 0.1, -W / 2, mS - 0.1, W / 2, zt, p.cu, p.pitch)
     gnd = g.plane("gnd", mS + 0.1, -W / 2, x_end, W / 2, zt, p.cu, p.pitch)
@@ -139,8 +150,8 @@ def build(p: Params) -> Geometry:
         vin, sw, gnd, m = _chain(g, p, zt, x_chain)
         l2 = g.plane("l2", -p.margin_plane, -W / 2 - p.margin_plane, m["x_end"] + p.margin_plane,
                      W / 2 + p.margin_plane, z2, p.cu if p.cu_in is None else p.cu_in, max(p.pitch, 0.25))
-        _via_row(g, "vg", gnd, l2, m["x_end"] - 0.45, 0.0, W, k)
-        _via_row(g, "vc", gpad, l2, 0.3, 0.0, W, k)
+        _via_row(g, "vg", gnd, l2, m["x_end"] - 0.45, 0.0, W, k, via_w=p.via_w)
+        _via_row(g, "vc", gpad, l2, 0.3, 0.0, W, k, via_w=p.via_w)
         ys = _ys(W, 6, 0.2)
         _bundle_port(g, vin, gpad, [(x_chain + 0.1, y) for y in ys], [(x_gp1 - 0.1, y) for y in ys],
                      ([x_gp1, -W / 2, zt], [x_chain, W / 2, zt], "x"))
@@ -151,8 +162,8 @@ def build(p: Params) -> Geometry:
         xb1 = m["xT"] + 0.3            # cap gap starts under the T device
         bv = g.plane("bvin", 0.0, -W / 2, xb1, W / 2, zb, p.cu, p.pitch)
         bg = g.plane("bgnd", xb1 + p.cap_gap, -W / 2, m["x_end"], W / 2, zb, p.cu, p.pitch)
-        _via_row(g, "vv", vin, bv, xv, 0.0, W, k)
-        _via_row(g, "vg", gnd, bg, m["x_end"] - 0.45, 0.0, W, k)
+        _via_row(g, "vv", vin, bv, xv, 0.0, W, k, via_w=p.via_w)
+        _via_row(g, "vg", gnd, bg, m["x_end"] - 0.45, 0.0, W, k, via_w=p.via_w)
         ys = _ys(W, 6, 0.2)
         _bundle_port(g, bv, bg, [(xb1 - 0.1, y) for y in ys], [(xb1 + p.cap_gap + 0.1, y) for y in ys],
                      ([xb1, -W / 2, zb], [xb1 + p.cap_gap, W / 2, zb], "x"))
@@ -173,12 +184,64 @@ def build(p: Params) -> Geometry:
             g.bar(a, b, (p.w_ret - 0.4) / 5 * 0.9, p.cu)
         l2 = g.plane("l2", -p.margin_plane, -W / 2 - p.margin_plane, m["x_end"] + p.margin_plane,
                      y_r1 + p.margin_plane, z2, p.cu if p.cu_in is None else p.cu_in, max(p.pitch, 0.25))
-        _via_row(g, "vg", gnd, l2, m["x_end"] - 0.45, 0.0, W, k)
+        _via_row(g, "vg", gnd, l2, m["x_end"] - 0.45, 0.0, W, k, via_w=p.via_w)
         if p.family == "lateral_stitched":
-            _via_row(g, "vr", ret, l2, 0.4, (y_r0 + y_r1) / 2, p.w_ret, max(2, k // 2))
+            _via_row(g, "vr", ret, l2, 0.4, (y_r0 + y_r1) / 2, p.w_ret, max(2, k // 2), via_w=p.via_w)
         xs = np.linspace(0.2, p.cap_w - 0.2, 4)
         _bundle_port(g, vin, ret, [(x, W / 2 - 0.1) for x in xs], [(x, y_r0 + 0.1) for x in xs],
                      ([0.0, W / 2, zt], [p.cap_w, y_r0, zt], "y"))
     else:
         raise ValueError(p.family)
+    if p.gate != "none":
+        _gates(g, p, zt)
     return g
+
+
+def _gates(g: Geometry, p: Params, zt):
+    """Gate-drive loops of both FETs as extra ports (Phase 3).
+
+    Gate pad (datasheet pad 1) sits just outside the power copper at y = -W/2 - 0.3 mm,
+    x = pad-row centre, exactly where kicad_prims.py places it.  A w_gate trace runs
+    l_gate in -y to the driver.  Inside the device the gate runner is modelled as thin
+    die metal from the gate bump to the source-side bump row (node ub0), so the source
+    bumps and source copper are shared with the power loop: that shared path is the
+    common-source inductance and appears as the off-diagonal Z entries.
+    Return path:  kelvin -> separate trace from the source copper next to the die back to
+    the driver (both FETs);  common -> (low-side only) driver return through a via into
+    the inner ground plane L2, so gate current shares the power return (no Kelvin).
+    Ports appended after the power port: [power, gate_HS, gate_LS].
+    """
+    W = p.W
+    l2 = next((pl for pl in g.planes if pl.name == "l2"), None)
+    zd = zt + p.cu / 2 + p.bump
+    yg = -W / 2 - 0.30
+    ydrv = yg - p.l_gate
+    if l2 is not None:          # inner ground plane continues under the driver area
+        l2.y0 = min(l2.y0, ydrv - 0.6)
+    for tag, src in (("T", "sw"), ("S", "gnd")):
+        pl_src = next(pl for pl in g.planes if pl.name == src)
+        x0 = g.nodes[f"{tag}a0"][0] - 0.3 - p.dx_die       # nominal pad row
+        gx = x0 + p.fet_l / 2
+        xs = g.nodes[f"{tag}ub0"][0]
+        ys0 = g.nodes[f"{tag}ub0"][1]
+        gd = g.node(f"g{tag}d", gx, ydrv, zt)
+        gp = g.node(f"g{tag}p", gx, yg, zt)
+        gu = g.node(f"g{tag}u", gx, yg, zd)
+        gk = g.node(f"g{tag}k", xs, yg, zd)
+        g.bar(gd, gp, p.w_gate, p.cu)                                   # gate trace
+        g.bar(gp, gu, 0.18 * 1.5, 0.18 * 1.5, wdir=(1, 0, 0))           # gate bump
+        g.bar(gu, gk, 0.1, DIE_H)                                       # on-die gate runner
+        g.bar(gk, f"{tag}ub0", 0.1, DIE_H)
+        xr = gx + p.s_gate
+        rd = g.node(f"r{tag}d", xr, ydrv, zt)
+        if p.gate == "common" and tag == "S":
+            if l2 is None:
+                raise ValueError("common gate return needs an inner ground plane")
+            rv = g.node(f"r{tag}v", xr, yg - 0.3, zt)
+            g.bar(rd, rv, p.w_gate, p.cu)
+            c2 = g.contact(l2, f"r{tag}l2", xr, yg - 0.3)
+            g.bar(rv, c2, p.via_w, p.via_w, wdir=(0, 1, 0))                # driver-ground via
+        else:
+            rc = g.contact(pl_src, f"r{tag}c", xr, -W / 2 + 0.05)          # Kelvin pick-off
+            g.bar(rd, rc, p.w_gate, p.cu)
+        g.ports.append((gd, rd))

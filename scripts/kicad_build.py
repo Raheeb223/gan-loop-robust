@@ -174,7 +174,8 @@ def write_project(board_path):
 def write_stackup(path, st):
     """Insert the physical stackup: L1-(d1)-L2-(core)-L3-(d1)-L4, symmetric."""
     cu, d1, T = st["cu"], st["d1"], st["T"]
-    core = T - 2 * (d1 + cu) - cu          # T is L1-to-L4 copper centre distance
+    ci = st.get("cu_in") or cu            # inner copper (JLCPCB: 0.5 oz); absent = same as outer
+    core = T - 2 * d1 - cu - 2 * ci       # T is L1-to-L4 copper centre distance
     def cl(name, t):
         return f'      (layer "{name}" (type "copper") (thickness {t:.4f}))'
     def dl(i, kind, t):
@@ -184,8 +185,8 @@ def write_stackup(path, st):
              '      (layer "F.SilkS" (type "Top Silk Screen"))',
              '      (layer "F.Paste" (type "Top Solder Paste"))',
              '      (layer "F.Mask" (type "Top Solder Mask") (thickness 0.01))',
-             cl("F.Cu", cu), dl(1, "prepreg", d1), cl("In1.Cu", cu), dl(2, "core", core),
-             cl("In2.Cu", cu), dl(3, "prepreg", d1), cl("B.Cu", cu),
+             cl("F.Cu", cu), dl(1, "prepreg", d1), cl("In1.Cu", ci), dl(2, "core", core),
+             cl("In2.Cu", ci), dl(3, "prepreg", d1), cl("B.Cu", cu),
              '      (layer "B.Mask" (type "Bottom Solder Mask") (thickness 0.01))',
              '      (layer "B.Paste" (type "Bottom Solder Paste"))',
              '      (layer "B.SilkS" (type "Bottom Silk Screen"))',
