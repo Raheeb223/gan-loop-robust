@@ -28,3 +28,6 @@ scripts/make_ojpel_zip.py
 results/*_log*.txt
 results/pipeline*
 results/phase4/gp_model.pkl
+
+# review run log
+results/review/*_log*.txt
